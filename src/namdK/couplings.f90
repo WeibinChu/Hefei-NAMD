@@ -227,15 +227,16 @@ module couplings
     olap%NBANDS = inp%NBANDS
     olap%TSTEPS = inp%NSW
     olap%dt = inp%POTIM
-    allocate(olap%Dij(olap%NBANDS, olap%NBANDS, olap%TSTEPS-1))
+    allocate(olap%Dij(olap%NBANDS, olap%NBANDS, olap%TSTEPS))
     allocate(olap%Eig(olap%NBANDS, olap%TSTEPS))
 
     olap_sec%NBANDS = inp%NBASIS
     olap_sec%TSTEPS = inp%NSW
     olap_sec%dt = inp%POTIM
-    allocate(olap_sec%Dij(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
-    allocate(olap_sec%DijR(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
-    allocate(olap_sec%DijI(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
+    allocate(olap_sec%Dij(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS))
+!    Trotter factorization integrator is not compatible with complex NAC
+!    allocate(olap_sec%DijR(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
+!    allocate(olap_sec%DijI(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
     allocate(olap_sec%Eig(olap_sec%NBANDS, olap_sec%TSTEPS))
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -357,11 +358,10 @@ module couplings
       read(unit=22, fmt=*) (olap_sec%Eig(i,j), i=1, inp%NBASIS)
     end do
     do k=1, N
-      read(unit=23, fmt=*) ((olap_sec%DijR(j, i, k), j=1, inp%NBASIS), &
+      read(unit=23, fmt=*) ((olap_sec%Dij(j, i, k), j=1, inp%NBASIS), &
                                                    i=1, inp%NBASIS)
     end do
 
-    olap_sec%Dij=olap_sec%DijR !+0.0_q*imgUnit
     close(unit=22)
     close(unit=23)
   end subroutine
